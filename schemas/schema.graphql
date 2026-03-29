@@ -1,0 +1,12 @@
+# Prometheus Exporter — Yeti metrics in Prometheus format
+#
+# GET /app-prometheus/metrics — full metrics scrape
+# GET /app-prometheus/metrics?fast=true — skip expensive collection
+
+type ExporterSettings @table(database: "app-prometheus") @export {
+    id: ID! @primaryKey              # "default"
+    scrapeAuth: String               # "true" to require auth on /metrics (default "true")
+    includeAppMetrics: String        # "true" to include per-app table counts (default "true")
+    includeTelemetry: String         # "true" to include telemetry log/span counts (default "true")
+    customLabels: String             # JSON: {"environment": "prod", "region": "us-east-1"}
+}

@@ -1,0 +1,13 @@
+name: "Prometheus Exporter"
+app_id: "app-prometheus"
+version: "0.1.0"
+description: "Expose yeti metrics in Prometheus exposition format for Grafana and alerting"
+
+schemas:
+  - schemas/schema.graphql
+
+resources:
+  - resources/*.rs
+
+auth:
+  methods: [jwt, basic]
