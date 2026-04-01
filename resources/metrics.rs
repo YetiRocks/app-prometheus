@@ -30,7 +30,7 @@ resource!(Metrics {
         lines.push("yeti_up 1".into());
 
         // --- yeti_health ---
-        let health = fetch(&format!("{}/health", base_url), None);
+        let health = fetch!(&format!("{}/health", base_url)).send();
         if let Ok(resp) = &health {
             if resp.ok() {
                 let parsed: Value = serde_json::from_str(&resp.body).unwrap_or(json!({}));
@@ -52,7 +52,7 @@ resource!(Metrics {
 
         // --- Per-app metrics (skip in fast mode) ---
         if !fast {
-            if let Ok(resp) = fetch(&format!("{}/admin/apps", base_url), None) {
+            if let Ok(resp) = fetch!(&format!("{}/admin/apps", base_url)).send() {
                 if resp.ok() {
                     let apps: Value = serde_json::from_str(&resp.body).unwrap_or(json!([]));
                     if let Some(app_list) = apps.as_array() {
@@ -74,7 +74,7 @@ resource!(Metrics {
         // --- Telemetry metrics ---
         if !fast {
             // Log count
-            if let Ok(resp) = fetch(&format!("{}/yeti-telemetry/Log?limit=0", base_url), None) {
+            if let Ok(resp) = fetch!(&format!("{}/yeti-telemetry/Log?limit=0", base_url)).send() {
                 if resp.ok() {
                     let parsed: Value = serde_json::from_str(&resp.body).unwrap_or(json!({}));
                     if let Some(count) = parsed["total"].as_u64() {
@@ -86,7 +86,7 @@ resource!(Metrics {
             }
 
             // Span count
-            if let Ok(resp) = fetch(&format!("{}/yeti-telemetry/Span?limit=0", base_url), None) {
+            if let Ok(resp) = fetch!(&format!("{}/yeti-telemetry/Span?limit=0", base_url)).send() {
                 if resp.ok() {
                     let parsed: Value = serde_json::from_str(&resp.body).unwrap_or(json!({}));
                     if let Some(count) = parsed["total"].as_u64() {
