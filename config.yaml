@@ -1,5 +1,6 @@
 name: "Prometheus Exporter"
 app_id: "app-prometheus"
+customer_id: "yeti"
 version: "0.1.0"
 description: "Expose yeti metrics in Prometheus exposition format for Grafana and alerting"
 
