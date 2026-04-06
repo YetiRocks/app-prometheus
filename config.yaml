@@ -5,10 +5,11 @@ version: "0.1.0"
 description: "Expose yeti metrics in Prometheus exposition format for Grafana and alerting"
 
 schemas:
-  - schemas/schema.graphql
+  path: schemas/schema.graphql
 
 resources:
-  - resources/*.rs
+  path: resources/*.rs
+  route: /api
 
 auth:
   methods: [jwt, basic]
