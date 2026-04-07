@@ -27,7 +27,7 @@ Without app-prometheus, bridging the gap means writing a custom exporter, parsin
 app-prometheus collapses all of that into a single yeti application:
 
 - **Standard exposition format** -- `text/plain; version=0.0.4` compatible with Prometheus, Grafana Agent, Datadog Agent, Victoria Metrics, and any OpenMetrics-compatible scraper.
-- **Zero configuration** -- install, restart yeti, point Prometheus at `/app-prometheus/metrics`. Done.
+- **Zero configuration** -- install, restart yeti, point Prometheus at `/app-prometheus/api/metrics`. Done.
 - **Fast mode** -- `?fast=true` skips expensive per-app and telemetry queries for high-frequency scraping (5s intervals).
 - **Runtime configurable** -- toggle auth requirements, app metrics, telemetry collection, and custom labels via the ExporterSettings table. No restart required.
 - **Native Rust plugin** -- compiles to a dylib, loads with yeti in seconds. No Node.js, no Python, no sidecar process.
@@ -48,7 +48,7 @@ Restart yeti. app-prometheus compiles automatically on first load (~2 minutes) a
 ### 2. Test the scrape endpoint
 
 ```bash
-curl -k https://localhost:9996/app-prometheus/metrics \
+curl -k https://localhost/app-prometheus/api/metrics \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -93,9 +93,9 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true    # for self-signed dev certs
     bearer_token: '<your-jwt-token>'
-    metrics_path: /app-prometheus/metrics
+    metrics_path: /app-prometheus/api/metrics
     static_configs:
-      - targets: ['localhost:9996']
+      - targets: ['localhost']
         labels:
           environment: 'production'
 ```
@@ -117,7 +117,7 @@ Restart Prometheus. Verify the target is UP in **Status > Targets**.
 ```
 Prometheus / Grafana Agent / Datadog Agent
     |
-    |  GET /app-prometheus/metrics
+    |  GET /app-prometheus/api/metrics
     |  (scrape every 15s or 5s for fast mode)
     v
 +-------------------------------------------------------+
@@ -126,11 +126,11 @@ Prometheus / Grafana Agent / Datadog Agent
 |  metrics.rs                                           |
 |  +--------------------------------------------------+ |
 |  |                                                  | |
-|  |  1. fetch("http://127.0.0.1:9996/health")       | |
+|  |  1. fetch("http://127.0.0.1/health")       | |
 |  |     -> yeti_up, yeti_health_status,              | |
 |  |        yeti_applications_total                   | |
 |  |                                                  | |
-|  |  2. fetch("http://127.0.0.1:9996/admin/apps")   | |
+|  |  2. fetch("http://127.0.0.1/admin/apps")   | |
 |  |     -> yeti_application_info{app, version}       | |
 |  |        (skipped in fast mode)                    | |
 |  |                                                  | |
@@ -152,9 +152,9 @@ Prometheus / Grafana Agent / Datadog Agent
   Prometheus TSDB -> Grafana Dashboards -> Alertmanager
 ```
 
-**Scrape path:** Prometheus sends `GET /app-prometheus/metrics` -> app-prometheus calls yeti internal APIs via `fetch()` (loopback HTTP) -> collects health, app inventory, and telemetry counts -> formats as Prometheus exposition text -> returns `text/plain; version=0.0.4`.
+**Scrape path:** Prometheus sends `GET /app-prometheus/api/metrics` -> app-prometheus calls yeti internal APIs via `fetch()` (loopback HTTP) -> collects health, app inventory, and telemetry counts -> formats as Prometheus exposition text -> returns `text/plain; version=0.0.4`.
 
-**Fast path:** `GET /app-prometheus/metrics?fast=true` -> skips steps 2 and 3 (per-app info and telemetry table scans) -> returns only core health metrics. Use this for high-frequency scraping without adding load.
+**Fast path:** `GET /app-prometheus/api/metrics?fast=true` -> skips steps 2 and 3 (per-app info and telemetry table scans) -> returns only core health metrics. Use this for high-frequency scraping without adding load.
 
 ---
 
@@ -165,7 +165,7 @@ Prometheus / Grafana Agent / Datadog Agent
 The primary endpoint. Returns all collected metrics in Prometheus exposition format:
 
 ```bash
-curl -k https://localhost:9996/app-prometheus/metrics \
+curl -k https://localhost/app-prometheus/api/metrics \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -185,7 +185,7 @@ Skips the two most expensive operations -- fetching the application list from `/
 Use fast mode for high-frequency scraping (5-second intervals) to detect outages quickly without adding load to the telemetry subsystem.
 
 ```bash
-curl -k "https://localhost:9996/app-prometheus/metrics?fast=true" \
+curl -k "https://localhost/app-prometheus/api/metrics?fast=true" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -270,7 +270,7 @@ Runtime configuration for the metrics endpoint. Stored in the `app-prometheus` d
 Update settings at runtime via the auto-generated REST API:
 
 ```bash
-curl -X POST https://localhost:9996/app-prometheus/ExporterSettings \
+curl -X POST https://localhost/app-prometheus/api/ExporterSettings \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
@@ -295,10 +295,11 @@ version: "0.1.0"
 description: "Expose yeti metrics in Prometheus exposition format for Grafana and alerting"
 
 schemas:
-  - schemas/schema.graphql
+  path: schemas/schema.graphql
 
 resources:
-  - resources/*.rs
+  path: resources/*.rs
+  route: /api
 
 auth:
   methods: [jwt, basic]
@@ -316,9 +317,9 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true    # for self-signed dev certs
     bearer_token: '<your-jwt-token>'
-    metrics_path: /app-prometheus/metrics
+    metrics_path: /app-prometheus/api/metrics
     static_configs:
-      - targets: ['localhost:9996']
+      - targets: ['localhost']
         labels:
           environment: 'production'
 ```
@@ -335,11 +336,11 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
     bearer_token: '<your-jwt-token>'
-    metrics_path: /app-prometheus/metrics
+    metrics_path: /app-prometheus/api/metrics
     params:
       fast: ['true']
     static_configs:
-      - targets: ['localhost:9996']
+      - targets: ['localhost']
 ```
 
 ### Running Both Together
@@ -355,9 +356,9 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
     bearer_token: '<your-jwt-token>'
-    metrics_path: /app-prometheus/metrics
+    metrics_path: /app-prometheus/api/metrics
     static_configs:
-      - targets: ['localhost:9996']
+      - targets: ['localhost']
         labels:
           environment: 'production'
 
@@ -368,11 +369,11 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
     bearer_token: '<your-jwt-token>'
-    metrics_path: /app-prometheus/metrics
+    metrics_path: /app-prometheus/api/metrics
     params:
       fast: ['true']
     static_configs:
-      - targets: ['localhost:9996']
+      - targets: ['localhost']
         labels:
           environment: 'production'
 ```
@@ -390,7 +391,7 @@ app-prometheus uses yeti's built-in auth system with JWT and Basic Auth methods 
 **Disabling auth for scrapes:** If your Prometheus instance cannot send authentication headers (e.g., behind a reverse proxy that strips them), set `scrapeAuth` to `"false"` in ExporterSettings:
 
 ```bash
-curl -X POST https://localhost:9996/app-prometheus/ExporterSettings \
+curl -X POST https://localhost/app-prometheus/api/ExporterSettings \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"id": "default", "scrapeAuth": "false"}'
@@ -400,7 +401,7 @@ curl -X POST https://localhost:9996/app-prometheus/ExporterSettings \
 
 ```bash
 # Login to get a token
-curl -X POST https://localhost:9996/yeti-auth/login \
+curl -X POST https://localhost/yeti-auth/login \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "your-password"}'
 
