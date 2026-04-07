@@ -48,7 +48,7 @@ Restart yeti. app-prometheus compiles automatically on first load (~2 minutes) a
 ### 2. Test the scrape endpoint
 
 ```bash
-curl -k https://localhost/app-prometheus/api/metrics \
+curl -k https://localhost:9996/app-prometheus/api/metrics \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -165,7 +165,7 @@ Prometheus / Grafana Agent / Datadog Agent
 The primary endpoint. Returns all collected metrics in Prometheus exposition format:
 
 ```bash
-curl -k https://localhost/app-prometheus/api/metrics \
+curl -k https://localhost:9996/app-prometheus/api/metrics \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -185,7 +185,7 @@ Skips the two most expensive operations -- fetching the application list from `/
 Use fast mode for high-frequency scraping (5-second intervals) to detect outages quickly without adding load to the telemetry subsystem.
 
 ```bash
-curl -k "https://localhost/app-prometheus/api/metrics?fast=true" \
+curl -k "https://localhost:9996/app-prometheus/api/metrics?fast=true" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -270,7 +270,7 @@ Runtime configuration for the metrics endpoint. Stored in the `app-prometheus` d
 Update settings at runtime via the auto-generated REST API:
 
 ```bash
-curl -X POST https://localhost/app-prometheus/api/ExporterSettings \
+curl -X POST https://localhost:9996/app-prometheus/api/ExporterSettings \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
@@ -391,7 +391,7 @@ app-prometheus uses yeti's built-in auth system with JWT and Basic Auth methods 
 **Disabling auth for scrapes:** If your Prometheus instance cannot send authentication headers (e.g., behind a reverse proxy that strips them), set `scrapeAuth` to `"false"` in ExporterSettings:
 
 ```bash
-curl -X POST https://localhost/app-prometheus/api/ExporterSettings \
+curl -X POST https://localhost:9996/app-prometheus/api/ExporterSettings \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"id": "default", "scrapeAuth": "false"}'
@@ -401,7 +401,7 @@ curl -X POST https://localhost/app-prometheus/api/ExporterSettings \
 
 ```bash
 # Login to get a token
-curl -X POST https://localhost/yeti-auth/login \
+curl -X POST https://localhost:9996/yeti-auth/login \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "your-password"}'
 
