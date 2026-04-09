@@ -109,7 +109,6 @@ resource!(Metrics {
         let body = lines.join("\n");
         reply()
             .type_header("text/plain; version=0.0.4; charset=utf-8")
-            .code(200)
             .send(body.into_bytes())
     }
 });
