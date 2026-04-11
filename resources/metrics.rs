@@ -19,8 +19,8 @@ use yeti_sdk::prelude::*;
 //   yeti_health_status               — 1=healthy, 0=degraded (gauge)
 resource!(Metrics {
     name = "metrics",
-    get(request, ctx) => {
-        let fast = ctx.get("fast").is_some();
+    get(ctx) => {
+        let fast = ctx.query("fast").is_some();
         let mut lines: Vec<String> = Vec::new();
         let base_url = "http://127.0.0.1:9996";
 
