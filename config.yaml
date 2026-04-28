@@ -1,0 +1,17 @@
+name: "Prometheus Exporter"
+app_id: "app-prometheus"
+customer_id: "yeti"
+version: "0.1.0"
+description: "Prometheus Exporter"
+
+schemas:
+  path: schemas/schema.graphql
+
+resources:
+  path: "resources/*.rs"
+  root: /api
+
+auth:
+  methods: [jwt, basic]
+  signup: auto
+  email_signup: true
