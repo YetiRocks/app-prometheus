@@ -286,23 +286,28 @@ curl -X POST https://localhost:9996/app-prometheus/api/ExporterSettings \
 
 ## Configuration
 
-### config.yaml
+### Cargo.toml ([package.metadata.app])
 
-```yaml
-name: "Prometheus Exporter"
-app_id: "app-prometheus"
-version: "0.1.0"
-description: "Expose yeti metrics in Prometheus exposition format for Grafana and alerting"
+App configuration lives in `Cargo.toml` under `[package.metadata.app]`. There is no separate `config.yaml` or `services.yaml`:
 
-schemas:
-  path: schemas/schema.graphql
+```toml
+[package]
+name = "app-prometheus"
+version = "0.1.0"
+edition = "2024"
+description = "Expose yeti metrics in Prometheus exposition format for Grafana and alerting"
 
-resources:
-  path: resources/*.rs
-  route: /api
+[package.metadata.app]
+schemas = "schemas/schema.graphql"
+resources = "resources/*.rs"
+```
 
-auth:
-  methods: [jwt, basic]
+To require authentication on the scrape endpoint, add a `[package.metadata.auth]` block:
+
+```toml
+[package.metadata.auth]
+allow_signup = false
+default_role = "scraper"
 ```
 
 ### Prometheus scrape_config -- Standard
@@ -382,7 +387,7 @@ scrape_configs:
 
 ## Authentication
 
-app-prometheus uses yeti's built-in auth system with JWT and Basic Auth methods configured in `config.yaml`.
+app-prometheus uses yeti's built-in auth system with JWT and Basic Auth methods configured in `Cargo.toml` under `[package.metadata.auth]`.
 
 **Development mode:** All endpoints are accessible without authentication.
 
@@ -464,7 +469,7 @@ Export your dashboard as JSON via **Dashboard Settings > JSON Model** and commit
 
 ```
 app-prometheus/
-  config.yaml              # App configuration (auth, schemas, resources)
+  Cargo.toml               # App configuration ([package.metadata.app] + optional [package.metadata.auth])
   schemas/
     schema.graphql         # ExporterSettings table definition
   resources/
