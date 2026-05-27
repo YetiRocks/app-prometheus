@@ -30,7 +30,7 @@ app-prometheus collapses all of that into a single yeti application:
 - **Zero configuration** -- install, restart yeti, point Prometheus at `/app-prometheus/api/metrics`. Done.
 - **Fast mode** -- `?fast=true` skips expensive per-app and telemetry queries for high-frequency scraping (5s intervals).
 - **Runtime configurable** -- toggle auth requirements, app metrics, telemetry collection, and custom labels via the ExporterSettings table. No restart required.
-- **Native Rust plugin** -- compiles to a dylib, loads with yeti in seconds. No Node.js, no Python, no sidecar process.
+- **Native Rust plugin** -- compiles to a wasm32-wasip2 component, loads with yeti in seconds. No Node.js, no Python, no sidecar process.
 
 ---
 
