@@ -115,6 +115,6 @@ resource!(Metrics {
 
 fn escape_label(s: &str) -> String {
     s.replace('\\', "\\\\")
-     .replace('"', "\\\"")
-     .replace('\n', "\\n")
+        .replace('"', "\\\"")
+        .replace('\n', "\\n")
 }
