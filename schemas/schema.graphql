@@ -3,7 +3,7 @@
 # GET /app-prometheus/metrics — full metrics scrape
 # GET /app-prometheus/metrics?fast=true — skip expensive collection
 
-type ExporterSettings @table(database: "app-prometheus") @export {
+type ExporterSettings @table(database: "app-prometheus") @distribute @export @access(public: [read, create, update, delete]) {
     id: ID! @primaryKey              # "default"
     scrapeAuth: String               # "true" to require auth on /metrics (default "true")
     includeAppMetrics: String        # "true" to include per-app table counts (default "true")
