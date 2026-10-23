@@ -270,7 +270,7 @@ Runtime configuration for the metrics endpoint. Stored in the `app-prometheus` d
 Update settings at runtime via the auto-generated REST API:
 
 ```bash
-curl -X POST https://localhost:9996/app-prometheus/api/ExporterSettings \
+curl -X POST https://localhost:9996/app-prometheus/api/ExporterSettings/ \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
@@ -396,7 +396,7 @@ app-prometheus uses yeti's built-in auth system with JWT and Basic Auth methods 
 **Disabling auth for scrapes:** If your Prometheus instance cannot send authentication headers (e.g., behind a reverse proxy that strips them), set `scrapeAuth` to `"false"` in ExporterSettings:
 
 ```bash
-curl -X POST https://localhost:9996/app-prometheus/api/ExporterSettings \
+curl -X POST https://localhost:9996/app-prometheus/api/ExporterSettings/ \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"id": "default", "scrapeAuth": "false"}'
